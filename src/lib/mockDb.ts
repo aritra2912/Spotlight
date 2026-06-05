@@ -465,7 +465,7 @@ const SEED_CLIPS: VibeClip[] = [
     id: 'clip_comedy_1',
     creatorId: 'user_vimoh',
     creatorName: 'Vimoh the Creator',
-    videoUrl: 'https://www.youtube.com/embed/8v8VzKxU840', // Sample stand-up comedy youtube clip
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-stand-up-comedian-performing-on-stage-41916-large.mp4',
     thumbnailUrl: 'https://images.unsplash.com/photo-1585699324551-f6c309eed262?w=300',
     caption: 'Vimoh riffing on Indian Traffic system! Live at Canvas Comedy.',
     likes: 142,
@@ -476,7 +476,7 @@ const SEED_CLIPS: VibeClip[] = [
     id: 'clip_music_1',
     creatorId: 'user_vimoh',
     creatorName: 'Vimoh the Creator',
-    videoUrl: 'https://www.youtube.com/embed/c0tFw14K9W8', // Sample acoustic music clip
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-guitarist-performing-on-stage-with-lights-41907-large.mp4',
     thumbnailUrl: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=300',
     caption: 'Sneak peek of Rooftop acoustic vibes from our last unplugged session.',
     likes: 98,
@@ -566,6 +566,13 @@ class MockDatabase {
         this.messages = JSON.parse(storedMessages || '[]');
         this.notifications = JSON.parse(storedNotifications || '[]');
         this.clips = JSON.parse(storedClips || '[]');
+        
+        // Migrate old YouTube clips to the working Mixkit MP4 clips
+        if (this.clips.some(c => c.videoUrl.includes('youtube.com/embed/8v8VzKxU840') || c.videoUrl.includes('youtube.com/embed/c0tFw14K9W8'))) {
+          this.clips = [...SEED_CLIPS];
+          this.save();
+        }
+
         this.campaigns = JSON.parse(storedCampaigns || '[]');
         this.isLoaded = true;
       } else {

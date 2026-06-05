@@ -395,12 +395,21 @@ export default function EventDetailPage({ params }: PageProps) {
                   <Film className="h-4.5 w-4.5 text-primary" /> Vibe Check Teaser
                 </h4>
                 <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/5">
-                  <iframe 
-                    src={clip.videoUrl} 
-                    title={clip.caption} 
-                    className="w-full h-full"
-                    allowFullScreen 
-                  />
+                  {clip.videoUrl.includes('youtube.com') || clip.videoUrl.includes('youtu.be') ? (
+                    <iframe 
+                      src={clip.videoUrl} 
+                      title={clip.caption} 
+                      className="w-full h-full"
+                      allowFullScreen 
+                    />
+                  ) : (
+                    <video 
+                      src={clip.videoUrl} 
+                      className="w-full h-full object-cover" 
+                      controls 
+                      playsInline
+                    />
+                  )}
                 </div>
                 <p className="text-xs text-gray-400 leading-relaxed italic">&quot;{clip.caption}&quot;</p>
               </div>

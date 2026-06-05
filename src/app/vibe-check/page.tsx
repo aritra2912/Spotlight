@@ -7,7 +7,6 @@ import {
   Plus, 
   Video, 
   ThumbsUp, 
-  Flame,
   CheckCircle
 } from 'lucide-react';
 import { mockDb, VibeClip, User, type Event } from '@/lib/mockDb';
@@ -73,7 +72,21 @@ export default function VibeCheckFeed() {
     e.preventDefault();
     if (!videoUrl || !caption) return;
 
-    mockDb.submitClip(videoUrl, caption, selectedEventId || undefined);
+    let processedUrl = videoUrl;
+    // Auto-convert standard YouTube watch URLs to embed URLs
+    if (videoUrl.includes('youtube.com/watch?v=')) {
+      const videoId = videoUrl.split('v=')[1]?.split('&')[0];
+      if (videoId) {
+        processedUrl = `https://www.youtube.com/embed/${videoId}`;
+      }
+    } else if (videoUrl.includes('youtu.be/')) {
+      const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
+      if (videoId) {
+        processedUrl = `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+
+    mockDb.submitClip(processedUrl, caption, selectedEventId || undefined);
     
     setSubmitSuccess(true);
     setVideoUrl('');
@@ -108,14 +121,6 @@ export default function VibeCheckFeed() {
           </button>
         </div>
 
-        {/* Cold-start prompt note */}
-        <div className="p-3.5 bg-primary/5 rounded-2xl border border-primary/10 flex gap-2.5 text-xs text-gray-400 leading-normal">
-          <Flame className="h-5 w-5 text-primary shrink-0" />
-          <p>
-            <strong>Loophole #3 Fix:</strong> Vibe Check cold start is resolved! Attendees can submit post-event highlights. Once approved by the creator, the video goes live in this global discovery feed.
-          </p>
-        </div>
-
         {/* Video vertical scrolling deck */}
         <div className="space-y-8">
           {clips.length === 0 ? (
@@ -131,15 +136,24 @@ export default function VibeCheckFeed() {
               
               return (
                 <div key={clip.id} className="glass-card overflow-hidden flex flex-col space-y-4">
-                  {/* YouTube Player aspect ratio */}
+                  {/* Video Player aspect ratio */}
                   <div className="relative aspect-[9/16] max-h-[550px] w-full bg-black border-b border-white/5 overflow-hidden">
-                    <iframe 
-                      src={clip.videoUrl} 
-                      title={clip.caption} 
-                      className="w-full h-full object-cover"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen 
-                    />
+                    {clip.videoUrl.includes('youtube.com') || clip.videoUrl.includes('youtu.be') ? (
+                      <iframe 
+                        src={clip.videoUrl} 
+                        title={clip.caption} 
+                        className="w-full h-full object-cover"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen 
+                      />
+                    ) : (
+                      <video 
+                        src={clip.videoUrl} 
+                        className="w-full h-full object-cover" 
+                        controls 
+                        playsInline
+                      />
+                    )}
                   </div>
 
                   {/* Actions & Caption panel */}
